@@ -1,7 +1,7 @@
 package controllers
 
 import controllers.Assets.Forbidden
-import models.LoginService
+import models.services.LoginService
 import play.api.mvc.{ActionBuilder, ActionFilter, ActionTransformer, Request, WrappedRequest}
 
 import scala.concurrent.Future

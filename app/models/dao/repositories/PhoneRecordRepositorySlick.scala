@@ -38,18 +38,6 @@ class PhoneRecordRepositorySlickImpl extends PhoneRecordRepositorySlick with Sli
     db.run(q3.result.headOption)
   }
 
-  def findWithAddress2(phone: String): Future[Option[(PhoneRecord, Address)]] = {
-    db.run(phoneRecords
-      .join(addresses)
-      .on(_.addressId == _.id)
-      .filter(_._1.phone === phone)
-      .sortBy(_._1.phone.asc.nullsLast)
-      .take(1)
-      .result
-      .headOption)
-  }
-
-
   def insert(address: Address, phoneRecord: PhoneRecord): Future[Int] = {
     val q1 = phoneRecords += phoneRecord
     val q2 = addresses += address
