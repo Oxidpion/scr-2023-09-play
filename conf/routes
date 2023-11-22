@@ -20,8 +20,14 @@ GET  /logout                 @controllers.IndexController.logOut()
 
 # phonerecords
 
-GET   /phonebook/list        @controllers.PhoneBookController.list()
-
 # Products
+#  /products - позволяет добавить продукт отправив соответствующий JSON
+#  /products - позволяет обновить имеющийся продукт передав соответствующий JSON
+#  /products/{id} - позволяет удалить продукт по id\
+#  /products - возвращает список продуктов
+#  /products?title="some title" - возвращает список продуктов отфильтрованных по полю title
 
-GET   /products/list         @controllers.ProductController.list()
+POST   /products             @controllers.ProductController.create()
+PUT    /products/:productId  @controllers.ProductController.update(productId)
+DELETE /products/:productId  @controllers.ProductController.delete(productId)
+GET    /products             @controllers.ProductController.search(filter: Option[models.filter.ProductFilter])

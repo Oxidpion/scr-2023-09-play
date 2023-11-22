@@ -5,12 +5,14 @@ import models.dto.LoginDTO
 import models.{Paging, User, UserId}
 import play.api.data.{Form, Forms}
 import play.api.data.Forms.{email, mapping, nonEmptyText, of, text}
+import play.api.i18n.I18nSupport
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, Controller, Cookie, DiscardingCookie}
 
 import scala.language.postfixOps
 
-class IndexController extends Controller{
+class IndexController @Inject()(val messagesApi: MessagesApi) extends Controller with I18nSupport {
 
   // f: Request => Result
 
