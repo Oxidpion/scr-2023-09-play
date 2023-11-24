@@ -12,11 +12,11 @@ object ProductRequest {
 case class ProductResponse(id: String, title: String, description: String, items: List[ProductItemDTO])
 
 object ProductResponse {
-  def from(from: Product): ProductResponse = ProductResponse(
+  def from(from: Product, items: List[ProductItem]): ProductResponse = ProductResponse(
     from.id,
     from.title,
     from.description,
-    from.items.map(ProductItemDTO.from)
+    items.map(ProductItemDTO.from)
   )
 
   implicit val writes: Writes[ProductResponse] = Json.writes[ProductResponse]
@@ -24,7 +24,8 @@ object ProductResponse {
 
 case class ProductItemDTO(id: String, price: MoneyDTO, count: Int, exists: Boolean) {
 
-  def toProductItem(): ProductItem = ProductItem(id = id, price = price.toMoney(), count = count, exists = exists)
+  def toProductItem(productId: String): ProductItem = ProductItem(
+    id = id, priceValue = price.value, currency = price.currency, count = count, exists = exists, productId)
 }
 
 object ProductItemDTO {
