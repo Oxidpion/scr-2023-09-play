@@ -1,11 +1,16 @@
 package models.dao.entities
 
-import models.dao.Money
+import models.dao.{Currency, Money}
 
-case class Product(id: String, title: String, description: String, items: List[ProductItem])
+case class Product(id: String = null, title: String, description: String)
 
-case class ProductItem(id: String, price: Money, count: Integer, exists: Boolean)
+case class ProductItem(id: String, priceValue: Int, currency: String, count: Int, exists: Boolean, productId: String = null) {
+  def price: Money = Money(priceValue, Currency.withName(currency))
+}
 
+//object ProductItem {
+//  def tupled
+//}
 
 
 // уникальный идентификатор (строка)

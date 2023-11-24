@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+        <changeSet id="create Product table" author="dmingazov">
+          <createTable tableName="Product">
+              <column name="id" type="text">
+                <constraints primaryKey="true" nullable="false"/>
+              </column>
+              <column name="title" type="text">
+                  <constraints nullable="false"/>
+              </column>
+              <column name="description" type="text">
+                  <constraints nullable="false"/>
+              </column>
+          </createTable>
+        </changeSet>
+
+        <changeSet id="create ProductItem table" author="dmingazov">
+          <createTable tableName="ProductItem">
+              <column name="id" type="text">
+                <constraints primaryKey="true" nullable="false"/> 
+              </column>
+              <column name="price" type="integer">
+                <constraints nullable="false"/>
+              </column>
+              <column name="currency" type="text">
+                  <constraints nullable="false"/>
+              </column>
+              <column name="count" type="integer">
+                <constraints nullable="false"/>
+              </column>
+              <column name="exists" type="boolean">
+                <constraints nullable="false"/>
+              </column>
+              <column name="productId" type="text">
+                  <constraints nullable="false"/>
+              </column>
+          </createTable>
+          <addForeignKeyConstraint baseColumnNames="productId"
+              baseTableName="ProductItem"
+              constraintName="fk_ProductItem_productId_Product_id"
+              referencedColumnNames="id"
+              referencedTableName="Product"/>
+        </changeSet>
+
+</databaseChangeLog>

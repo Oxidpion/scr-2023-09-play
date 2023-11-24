@@ -1,43 +1,63 @@
 package models.services
 
 import com.google.inject.{ImplementedBy, Inject, Singleton}
-import models.dao.entities.Product
+import models.dao.entities.{Product, ProductItem}
 import models.dao.repositories.ProductRepository
-import models.dto.{ProductRequest, ProductResponse}
+import models.dto.{ProductItemDTO, ProductRequest, ProductResponse}
 import models.filter.ProductFilter
+
+import java.util.UUID
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
+import scala.language.postfixOps
 
 @ImplementedBy(classOf[ProductServiceImpl])
 trait ProductService {
 
-  def create(product: ProductRequest): ProductResponse
+  def create(product: ProductRequest): Future[ProductResponse]
 
-  def search(filter: ProductFilter): List[ProductResponse]
+  def search(filter: ProductFilter): Future[List[ProductResponse]]
 
-  def all(): List[ProductResponse]
+  def all(): Future[List[ProductResponse]]
 
-  def update(productId: String, product: ProductRequest): ProductResponse
+  def update(productId: String, product: ProductRequest): Future[ProductResponse]
 
-  def delete(productId: String): Unit
+  def delete(productId: String): Future[Unit]
 }
 
 @Singleton
 class ProductServiceImpl @Inject()(productRepository: ProductRepository) extends ProductService {
-  override def create(dto: ProductRequest): ProductResponse = {
-    val product = Product(null, dto.title, dto.description, dto.items.map(_.toProductItem()))
-    val result = productRepository.insert(product)
-    ProductResponse.from(result)
+  implicit val ec: ExecutionContextExecutor = ExecutionContext.global
+
+  override def create(dto: ProductRequest): Future[ProductResponse] = {
+    val productId = UUID.randomUUID().toString
+    val product = Product(id = productId, title = dto.title, description = dto.description)
+    val productItems = dto.items.map(toProductItem(productId))
+    productRepository.insert(product, productItems).map(_ => ProductResponse.from(product, productItems))
   }
 
-  override def search(filter: ProductFilter): List[ProductResponse] =
-    productRepository.findAll(filter.getFilter()).map(ProductResponse.from)
+  private def toProductItem(productId: String)(item: ProductItemDTO) =
+    ProductItem(
+      id = item.id,
+      priceValue = item.price.value,
+      currency = item.price.currency,
+      count = item.count,
+      exists = item.exists,
+      productId = productId
+    )
 
-  override def all(): List[ProductResponse] = productRepository.findAll(_ => true).map(ProductResponse.from)
+  override def search(filter: ProductFilter): Future[List[ProductResponse]] = for {
+    products <- productRepository.findByTitle(filter.title)
+  } yield products.map(p => ProductResponse.from(p._1, p._2))
 
-  override def update(productId: String, dto: ProductRequest): ProductResponse = {
-    val product = Product(productId, dto.title, dto.description, dto.items.map(_.toProductItem()))
-    productRepository.update(product)
-    ProductResponse.from(product)
+  override def all(): Future[List[ProductResponse]] = for {
+    products <- productRepository.all()
+  } yield products.map(p => ProductResponse.from(p._1, p._2))
+
+  override def update(productId: String, dto: ProductRequest): Future[ProductResponse] = {
+    val product = Product(id = productId, title = dto.title, description = dto.description)
+    val productItems = dto.items.map(toProductItem(productId))
+    productRepository.update(product, productItems).map(_ => ProductResponse.from(product, productItems))
   }
 
-  override def delete(productId: String): Unit = productRepository.delete(productId)
+  override def delete(productId: String): Future[Unit] = productRepository.delete(productId)
 }
